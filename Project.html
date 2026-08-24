@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnvayaRx — Internal Processing Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#4338CA; --indigo-dark:#312E81; --indigo-fill:#EEF0FD;
+  --hero-1:#4F46E5; --hero-2:#3730A3;
+  --blue-fill:#E0EEFF; --blue-border:#2563EB;
+  --violet-fill:#F3E8FF; --violet-border:#7C3AED;
+  --amber-fill:#FEF3C7; --amber-border:#B45309;
+  --emerald:#059669;
+  --slate-900:#0F172A; --slate-600:#475569; --slate-400:#94A3B8;
+  --card-border:#E2E8F0; --bg:#FFFFFF; --section-bg:#F8FAFC;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--slate-900);
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{max-width:100%;}
+
+.hero{
+  background:linear-gradient(135deg,var(--hero-1),var(--hero-2));
+  color:#fff; padding:56px 32px 46px; text-align:center; position:relative; overflow:hidden;
+}
+.hero::before{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(circle at 20% 20%, rgba(255,255,255,.10), transparent 45%),
+             radial-gradient(circle at 85% 75%, rgba(255,255,255,.08), transparent 40%);
+}
+.hero-inner{position:relative; max-width:820px; margin:0 auto;}
+.eyebrow{
+  display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:1.6px;
+  text-transform:uppercase; color:#C7D2FE; background:rgba(255,255,255,.12);
+  padding:6px 14px; border-radius:999px; margin-bottom:18px;
+}
+.hero h1{font-size:clamp(26px,4vw,38px); font-weight:800; line-height:1.2; margin:0 0 14px;}
+.hero p{font-size:clamp(14px,1.6vw,16.5px); color:#DCE0FA; margin:0 auto; max-width:620px; line-height:1.6;}
+
+main{max-width:1240px; margin:0 auto; padding:48px 32px 64px;}
+
+.legend-row{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:36px;}
+.legend-card{
+  flex:1; min-width:200px; background:var(--section-bg); border:1px solid var(--card-border);
+  border-radius:14px; padding:16px 18px;
+}
+.legend-card .tag{
+  display:inline-block; font-size:10.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+  padding:3px 9px; border-radius:6px; margin-bottom:8px;
+}
+.legend-card.a1 .tag{background:var(--blue-fill); color:var(--blue-border);}
+.legend-card.app .tag{background:var(--indigo-fill); color:var(--indigo);}
+.legend-card.a2 .tag{background:var(--violet-fill); color:var(--violet-border);}
+.legend-card h4{margin:0 0 4px; font-size:14.5px; font-weight:800;}
+.legend-card p{margin:0; font-size:12.5px; color:var(--slate-600); line-height:1.5;}
+
+.kicker{
+  font-size:13px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase;
+  color:var(--indigo); margin-bottom:10px;
+}
+h2{font-size:clamp(22px,3vw,30px); font-weight:800; margin:0 0 12px; letter-spacing:-.2px;}
+p.lede{font-size:15.5px; color:var(--slate-600); max-width:760px; line-height:1.65; margin:0 0 34px;}
+
+/* controls */
+.demo-controls{display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:24px;}
+.demo-controls .group-label{font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--slate-400); margin-right:2px;}
+.sol-btn{
+  background:#fff; border:1.5px solid var(--card-border); color:var(--slate-600);
+  font-size:13px; font-weight:700; padding:9px 16px; border-radius:999px; cursor:pointer;
+  transition:all .15s; display:inline-flex; align-items:center; gap:8px;
+}
+.sol-btn .fmt{font-size:10.5px; font-weight:800; color:var(--slate-400); background:var(--section-bg); padding:2px 7px; border-radius:6px;}
+.sol-btn:hover:not(:disabled){border-color:var(--indigo);}
+.sol-btn.active{background:var(--indigo); border-color:var(--indigo); color:#fff;}
+.sol-btn.active .fmt{background:rgba(255,255,255,.18); color:#fff;}
+.sol-btn:disabled{opacity:.5; cursor:not-allowed;}
+.demo-actions{display:flex; gap:10px; margin-left:auto;}
+.btn-run{
+  background:var(--indigo); color:#fff; border:none; font-size:14px; font-weight:800;
+  padding:11px 20px; border-radius:10px; cursor:pointer; box-shadow:0 8px 20px rgba(67,56,202,.25);
+  transition:transform .15s, box-shadow .15s; display:inline-flex; align-items:center; gap:8px;
+}
+.btn-run:hover:not(:disabled){transform:translateY(-1px);}
+.btn-run:disabled{opacity:.6; cursor:not-allowed; box-shadow:none; transform:none;}
+.btn-reset{
+  background:#fff; color:var(--slate-600); border:1.5px solid var(--card-border);
+  font-size:14px; font-weight:700; padding:11px 18px; border-radius:10px; cursor:pointer;
+}
+.btn-reset:hover:not(:disabled){border-color:var(--slate-400);}
+.btn-reset:disabled{opacity:.5; cursor:not-allowed;}
+@media (max-width:820px){
+  .demo-actions{margin-left:0; width:100%;}
+  .btn-run, .btn-reset{flex:1; justify-content:center;}
+}
+
+.demo-phase{
+  display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:800;
+  letter-spacing:.5px; text-transform:uppercase; color:var(--indigo);
+  background:var(--indigo-fill); padding:7px 14px; border-radius:999px; margin-bottom:20px;
+}
+.demo-phase .dot{width:7px; height:7px; border-radius:50%; background:var(--indigo); flex:0 0 auto;}
+
+.demo-scroll{overflow-x:auto; padding-bottom:4px;}
+.demo-stage{display:flex; align-items:stretch; gap:0; min-width:1080px; padding:6px 2px 30px;}
+.demo-node{
+  flex:1; background:#fff; border:1.5px solid var(--card-border); border-radius:16px;
+  padding:18px 16px; text-align:left; min-width:170px; position:relative;
+  box-shadow:0 6px 18px rgba(15,23,42,.05); transition:border-color .25s, box-shadow .25s;
+  display:flex; flex-direction:column;
+}
+.demo-node.active{border-color:var(--indigo); box-shadow:0 10px 26px rgba(67,56,202,.18);}
+.demo-node.err{border-color:#DC2626;}
+.demo-node.lamar, .demo-node.payor{text-align:center; align-items:center;}
+.demo-node.lamar{border-color:var(--blue-border); flex:0.85;}
+.demo-node.payor{border-color:var(--amber-border); flex:0.95;}
+/* a block the request never got to — dimmed, not errored */
+.demo-node.unreached{opacity:.4; border-style:dashed;}
+.demo-node.payor.err, .demo-node.lamar.err{border-color:#DC2626;}
+.demo-node.agent1{border-color:var(--blue-border);}
+.demo-node.app{border-color:var(--indigo);}
+.demo-node.agent2{border-color:var(--violet-border);}
+.demo-node .icon{width:30px; height:30px; margin-bottom:10px;}
+.demo-node.lamar .icon, .demo-node.payor .icon{color:var(--amber-border);}
+.demo-node.lamar .icon{color:var(--blue-border);}
+.demo-node.agent1 .icon{color:var(--blue-border);}
+.demo-node.app .icon{color:var(--indigo);}
+.demo-node.agent2 .icon{color:var(--violet-border);}
+.demo-node h4{margin:0 0 2px; font-size:15px; font-weight:800;}
+.demo-node .sub{font-size:11px; color:var(--slate-600); font-weight:600; margin-bottom:10px;}
+.demo-node .fmt-tag{
+  display:inline-block; margin-top:4px; font-size:10.5px; font-weight:800; letter-spacing:.4px;
+  background:var(--indigo-fill); color:var(--indigo); padding:3px 9px; border-radius:6px;
+}
+.job-list{list-style:none; margin:0 0 10px; padding:0; display:flex; flex-direction:column; gap:5px;}
+.job-list li{
+  font-size:11.5px; color:var(--slate-600); line-height:1.4; padding-left:14px; position:relative;
+  transition:color .18s, font-weight .18s;
+}
+.job-list li::before{
+  content:""; position:absolute; left:0; top:6px; width:5px; height:5px; border-radius:50%;
+  background:var(--slate-400); transition:background .18s, transform .18s, box-shadow .18s;
+}
+
+/* a job actively being performed right now */
+.job-list li.on{font-weight:700;}
+.job-list li.on::before{transform:scale(1.9);}
+.demo-node.agent1 .job-list li.on{color:var(--blue-border);}
+.demo-node.agent1 .job-list li.on::before{background:var(--blue-border); box-shadow:0 0 0 4px rgba(37,99,235,.16);}
+.demo-node.app .job-list li.on{color:var(--indigo);}
+.demo-node.app .job-list li.on::before{background:var(--indigo); box-shadow:0 0 0 4px rgba(67,56,202,.16);}
+.demo-node.agent2 .job-list li.on{color:var(--violet-border);}
+.demo-node.agent2 .job-list li.on::before{background:var(--violet-border); box-shadow:0 0 0 4px rgba(124,58,237,.16);}
+
+/* a job already completed on this pass */
+.demo-node.agent1 .job-list li.done::before{background:var(--blue-border);}
+.demo-node.app .job-list li.done::before{background:var(--indigo);}
+.demo-node.agent2 .job-list li.done::before{background:var(--violet-border);}
+
+/* a job that failed */
+.job-list li.err{color:#DC2626; font-weight:700;}
+.job-list li.err::before{background:#DC2626; transform:scale(1.9); box-shadow:0 0 0 4px rgba(220,38,38,.16);}
+.demo-node .status-line{margin-top:auto; font-size:11.5px; font-weight:700; min-height:16px; color:var(--slate-400); padding-top:8px;}
+.demo-node .status-line.ok{color:var(--emerald);}
+.demo-node .status-line.err{color:#DC2626;}
+.demo-node .status-line.wait{color:var(--amber-border);}
+.demo-node .status-line.async{color:var(--violet-border);}
+
+.demo-connector{flex:0 0 56px; position:relative; margin:0 -2px; align-self:center; height:2px; top:64px;}
+.demo-connector::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:2px;
+  background:repeating-linear-gradient(to right, var(--card-border) 0 6px, transparent 6px 11px);
+}
+.demo-packet{
+  position:absolute; top:50%; width:13px; height:13px; border-radius:50%;
+  transform:translate(-50%,-50%); left:0%; opacity:0; transition:left .48s linear, opacity .15s;
+}
+.demo-packet.show{opacity:1;}
+.demo-packet.req{background:var(--slate-900);}
+.demo-packet.ok{background:var(--emerald);}
+.demo-packet.err{background:#DC2626;}
+.demo-packet.async{background:#fff; border:2.5px solid var(--violet-border);}
+.demo-packet.ack{background:var(--emerald); border:2px solid #fff;}
+
+@media (max-width:1080px){
+  .scroll-hint{display:block !important;}
+}
+.scroll-hint{
+  display:none; font-size:12.5px; color:var(--slate-400); text-align:center;
+  margin-top:-16px; margin-bottom:24px; font-style:italic;
+}
+
+.demo-log{
+  background:var(--section-bg); border:1px solid var(--card-border); border-radius:14px;
+  padding:6px 18px; max-height:260px; overflow-y:auto; margin-top:6px;
+}
+.demo-log .entry{
+  display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--card-border);
+  font-size:13px; align-items:flex-start;
+}
+.demo-log .entry:last-child{border-bottom:none;}
+.demo-log .entry .t{color:var(--slate-400); font-size:11.5px; font-weight:700; min-width:64px; padding-top:1px;}
+.demo-log .entry .dot{width:8px; height:8px; border-radius:50%; margin-top:5px; flex:0 0 auto; background:var(--slate-400);}
+.demo-log .entry.ok .dot{background:var(--emerald);}
+.demo-log .entry.err .dot{background:#DC2626;}
+.demo-log .entry.async .dot{background:#7C3AED;}
+.demo-log .entry.final .dot{background:var(--indigo);}
+.demo-log .entry .msg{color:var(--slate-900); line-height:1.45;}
+.demo-log .empty{color:var(--slate-400); font-size:13px; padding:18px 0; text-align:center;}
+
+.demo-note{font-size:12px; color:var(--slate-400); font-style:italic; margin-top:16px;}
+
+footer{
+  padding:36px 32px; text-align:center; color:var(--slate-400); font-size:13px;
+  border-top:1px solid var(--card-border);
+}
+footer strong{color:var(--slate-600);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Internal Processing Walkthrough</span>
+    <h1>What Actually Happens Inside AnvayaRx</h1>
+    <p>Every request crosses three internal hops before it ever reaches a payor solution — each with one clear job. Watch it happen, hop by hop.</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="legend-row">
+    <div class="legend-card a1">
+      <span class="tag">Agent 1 — Inbound</span>
+      <h4>Standardize</h4>
+      <p>Authenticates the caller, validates the incoming XML or JSON, and converts it into AnvayaRx's one canonical format.</p>
+    </div>
+    <div class="legend-card app">
+      <span class="tag">AnvayaRx App — Not An Agent</span>
+      <h4>Audit &amp; Log</h4>
+      <p>Writes an immutable, Case-linked audit entry for every exchange, then hands the standardized request to Agent 2.</p>
+    </div>
+    <div class="legend-card a2">
+      <span class="tag">Agent 2 — Outbound</span>
+      <h4>Convert &amp; Deliver</h4>
+      <p>Looks up the payor's routing rule, converts to that solution's own schema — XML or JSON — and delivers to the right endpoint.</p>
+    </div>
+  </div>
+
+  <div class="kicker">Interactive Walkthrough</div>
+  <h2>Watch a Request Cross All Three Hops, Live</h2>
+  <p class="lede">Pick a payor solution and send a request. The packet travels through Agent&nbsp;1, the AnvayaRx App, and Agent&nbsp;2 in order — every hop shown separately, with the real job it's doing at that instant.</p>
+
+  <div class="demo-controls">
+    <span class="group-label">Deliver to:</span>
+    <button class="sol-btn active" data-sol="agadia" type="button">Agadia <span class="fmt">XML</span></button>
+    <button class="sol-btn" data-sol="solb" type="button">Solution B <span class="fmt">JSON</span></button>
+    <button class="sol-btn" data-sol="solc" type="button">Solution C <span class="fmt">MIXED</span></button>
+    <button class="sol-btn" data-sol="soln" type="button">Solution N <span class="fmt">NEW</span></button>
+    <div class="demo-actions">
+      <button class="btn-reset" id="demoReset" type="button">Reset</button>
+      <button class="btn-run" id="demoRun" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <span id="demoRunLabel">Send Prior Authorization Request</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="demo-phase" id="demoPhase"><span class="dot"></span> Ready</div>
+
+  <div class="demo-scroll">
+    <div class="demo-stage" id="demoStage">
+
+      <div class="demo-node lamar" id="nodeLamar">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h4>Lamar</h4>
+        <div class="sub">API Customer</div>
+        <div class="status-line" id="statusLamar"></div>
+      </div>
+
+      <div class="demo-connector"><div class="demo-packet" id="packet0"></div></div>
+
+      <div class="demo-node agent1" id="nodeAgent1">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/><path d="M8.5 12 11 14.5 16 9"/></svg></div>
+        <h4>Agent 1</h4>
+        <div class="sub">Inbound Gateway</div>
+        <ul class="job-list" id="jobsAgent1">
+          <li>Authenticate the caller</li>
+          <li>Validate structure and fields</li>
+          <li>Convert to AnvayaRx standard</li>
+        </ul>
+        <div class="status-line" id="statusAgent1"></div>
+      </div>
+
+      <div class="demo-connector"><div class="demo-packet" id="packet1"></div></div>
+
+      <div class="demo-node app" id="nodeApp">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="13.5" x2="15" y2="13.5"/><line x1="9" y1="17" x2="12.5" y2="17"/></svg></div>
+        <h4>AnvayaRx App</h4>
+        <div class="sub">Not an agent — audit &amp; log</div>
+        <ul class="job-list" id="jobsApp">
+          <li>Write an immutable audit entry</li>
+          <li>Link it to this Case</li>
+          <li>Hand off to Agent 2</li>
+        </ul>
+        <div class="status-line" id="statusApp"></div>
+      </div>
+
+      <div class="demo-connector"><div class="demo-packet" id="packet2"></div></div>
+
+      <div class="demo-node agent2" id="nodeAgent2">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.2 11 15.8 7"/><path d="M8.2 13 15.8 17"/></svg></div>
+        <h4>Agent 2</h4>
+        <div class="sub">Outbound Router + Adapter</div>
+        <ul class="job-list" id="jobsAgent2">
+          <li>Look up the routing rule</li>
+          <li>Convert to the solution's format</li>
+          <li>Deliver to the right endpoint</li>
+        </ul>
+        <div class="fmt-tag" id="agent2Fmt">Target: XML</div>
+        <div class="status-line" id="statusAgent2"></div>
+      </div>
+
+      <div class="demo-connector"><div class="demo-packet" id="packet3"></div></div>
+
+      <div class="demo-node payor" id="nodePayor">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.6"/><circle cx="5" cy="19" r="2.6"/><circle cx="19" cy="19" r="2.6"/><g stroke="currentColor" stroke-width="1.6"><line x1="12" y1="8" x2="12" y2="14"/><line x1="12" y1="14" x2="6.2" y2="17.3"/><line x1="12" y1="14" x2="17.8" y2="17.3"/></g></svg></div>
+        <h4 id="payorName">Agadia</h4>
+        <div class="sub" id="payorSub">Existing solution • 37 payors</div>
+        <div class="fmt-tag" id="payorFmt">XML</div>
+        <div class="status-line" id="statusPayor"></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll horizontally to see all five blocks →</div>
+
+  <div class="demo-log" id="demoLog">
+    <div class="empty">No requests sent yet — pick a payor solution above and click "Send Prior Authorization Request."</div>
+  </div>
+  <div class="demo-note">Simulated for illustration — timings are compressed. Real questions, answers, and decisions arrive as async callbacks over minutes to days, not on a held-open connection.</div>
+
+</main>
+
+<footer>
+  <div><strong>AnvayaRx</strong> — Internal Processing Walkthrough</div>
+  <div style="margin-top:6px;">Companion detail view for the full Prior Authorization Platform overview.</div>
+</footer>
+
+<script>
+(function(){
+  var SOLUTIONS = {
+    agadia: { name:"Agadia",     sub:"Existing solution • 37 payors",     fmt:"XML",         rounds:1, outcome:"approved", fallback:false },
+    solb:   { name:"Solution B", sub:"New payor group, straight-through", fmt:"JSON",        rounds:0, outcome:"approved", fallback:false },
+    solc:   { name:"Solution C", sub:"New payor group, multi-round",      fmt:"XML / JSON",  rounds:2, outcome:"denied",   fallback:false },
+    soln:   { name:"Solution N", sub:"Adapter not yet configured",       fmt:"—",           rounds:0, outcome:null,       fallback:true }
+  };
+
+  var els = {
+    phase: document.getElementById('demoPhase'),
+    log: document.getElementById('demoLog'),
+    run: document.getElementById('demoRun'),
+    runLabel: document.getElementById('demoRunLabel'),
+    reset: document.getElementById('demoReset'),
+    payorName: document.getElementById('payorName'),
+    payorSub: document.getElementById('payorSub'),
+    payorFmt: document.getElementById('payorFmt'),
+    agent2Fmt: document.getElementById('agent2Fmt'),
+    nodes: [
+      document.getElementById('nodeLamar'),
+      document.getElementById('nodeAgent1'),
+      document.getElementById('nodeApp'),
+      document.getElementById('nodeAgent2'),
+      document.getElementById('nodePayor')
+    ],
+    status: [
+      document.getElementById('statusLamar'),
+      document.getElementById('statusAgent1'),
+      document.getElementById('statusApp'),
+      document.getElementById('statusAgent2'),
+      document.getElementById('statusPayor')
+    ],
+    packets: [
+      document.getElementById('packet0'),
+      document.getElementById('packet1'),
+      document.getElementById('packet2'),
+      document.getElementById('packet3')
+    ],
+    solBtns: Array.prototype.slice.call(document.querySelectorAll('.sol-btn'))
+  };
+
+  var currentSol = 'agadia';
+  var running = false;
+  var HOP = 280, HOLD = 90, PROC = 300;
+
+  // per-block job lists, keyed by node index
+  var JOBS = {
+    1: document.getElementById('jobsAgent1'),
+    2: document.getElementById('jobsApp'),
+    3: document.getElementById('jobsAgent2')
+  };
+
+  function jobItems(nodeIdx){
+    var list = JOBS[nodeIdx];
+    return list ? Array.prototype.slice.call(list.children) : [];
+  }
+
+  function clearJobs(){
+    Object.keys(JOBS).forEach(function(k){
+      jobItems(k).forEach(function(li){ li.classList.remove('on','done','err'); });
+    });
+  }
+
+  // light each of this block's jobs in turn, in the direction of travel
+  function runJobs(nodeIdx, reverse, totalMs, limit){
+    var items = jobItems(nodeIdx);
+    if (!items.length) return Promise.resolve();
+    if (reverse) items.reverse();
+    if (limit) items = items.slice(0, limit);
+    var each = Math.max(80, Math.round(totalMs / items.length));
+    return items.reduce(function(chain, li){
+      return chain.then(function(){
+        li.classList.remove('done','err');
+        li.classList.add('on');
+        return wait(each).then(function(){
+          li.classList.remove('on');
+          li.classList.add('done');
+        });
+      });
+    }, Promise.resolve());
+  }
+
+  function markJobErr(nodeIdx, itemIdx){
+    var items = jobItems(nodeIdx);
+    items.forEach(function(li){ li.classList.remove('on','done','err'); });
+    if (items[itemIdx]) items[itemIdx].classList.add('err');
+  }
+
+  function setSolution(key){
+    currentSol = key;
+    var s = SOLUTIONS[key];
+    els.payorName.textContent = s.name;
+    els.payorSub.textContent = s.sub;
+    els.payorFmt.textContent = s.fmt;
+    els.agent2Fmt.textContent = 'Target: ' + s.fmt;
+    els.solBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-sol') === key); });
+    els.nodes[4].classList.remove('err','unreached');
+  }
+
+  els.solBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (running) return;
+      setSolution(b.getAttribute('data-sol'));
+    });
+  });
+
+  function wait(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+  function setPhase(text){ els.phase.innerHTML = '<span class="dot"></span> ' + text; }
+
+  function logEntry(type, html){
+    var empty = els.log.querySelector('.empty');
+    if (empty) empty.remove();
+    var row = document.createElement('div');
+    row.className = 'entry ' + type;
+    var t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    row.innerHTML = '<div class="t">'+t+'</div><div class="dot"></div><div class="msg">'+html+'</div>';
+    els.log.appendChild(row);
+    els.log.scrollTop = els.log.scrollHeight;
+  }
+
+  function clearStatuses(){
+    els.status.forEach(function(el){ el.textContent = ''; el.className = 'status-line'; });
+  }
+  function setStatus(idx, text, cls){
+    var el = els.status[idx];
+    el.textContent = text;
+    el.className = 'status-line' + (cls ? ' ' + cls : '');
+  }
+
+  function hop(connIdx, reverse, type, dur, holdActive){
+    var fromIdx = reverse ? connIdx + 1 : connIdx;
+    var toIdx = reverse ? connIdx : connIdx + 1;
+    var packetEl = els.packets[connIdx];
+    var nodeFrom = els.nodes[fromIdx];
+    var nodeTo = els.nodes[toIdx];
+    return new Promise(function(resolve){
+      packetEl.className = 'demo-packet ' + type;
+      packetEl.style.transition = 'none';
+      packetEl.style.left = reverse ? '100%' : '0%';
+      void packetEl.offsetWidth;
+      packetEl.style.transition = 'left ' + dur + 'ms linear, opacity .15s';
+      nodeFrom.classList.add('active');
+      requestAnimationFrame(function(){
+        packetEl.classList.add('show');
+        packetEl.style.left = reverse ? '0%' : '100%';
+      });
+      setTimeout(function(){
+        packetEl.classList.remove('show');
+        nodeFrom.classList.remove('active');
+        nodeTo.classList.add('active');
+        if (!holdActive) setTimeout(function(){ nodeTo.classList.remove('active'); }, 240);
+        resolve(toIdx);
+      }, dur + 30);
+    });
+  }
+
+  // travel across a contiguous run of connectors. as the packet lands on each node
+  // it shows that node's status message and lights its job bullets one by one.
+  // messages: { nodeIdx: {text, cls} }   jobLimits: { nodeIdx: howManyJobsToRun }
+  function travel(connIdxs, reverse, type, messages, jobLimits){
+    return connIdxs.reduce(function(chain, connIdx){
+      return chain.then(function(){ return hop(connIdx, reverse, type, HOP, true); })
+        .then(function(toIdx){
+          var m = messages && messages[toIdx];
+          if (m) setStatus(toIdx, m.text, m.cls);
+          var limit = jobLimits && jobLimits[toIdx];
+          return runJobs(toIdx, reverse, PROC, limit)
+            .then(function(){ return wait(HOLD); })
+            .then(function(){ els.nodes[toIdx].classList.remove('active'); });
+        });
+    }, Promise.resolve());
+  }
+
+  function caseId(){ return 'PA-' + Math.floor(10000 + Math.random() * 89999); }
+
+  function setButtonsDisabled(disabled){
+    els.run.disabled = disabled;
+    els.reset.disabled = disabled;
+    els.solBtns.forEach(function(b){ b.disabled = disabled; });
+    els.runLabel.textContent = disabled ? 'Running…' : 'Send Prior Authorization Request';
+  }
+
+  els.reset.addEventListener('click', function(){
+    if (running) return;
+    els.log.innerHTML = '<div class="empty">No requests sent yet — pick a payor solution above and click &quot;Send Prior Authorization Request.&quot;</div>';
+    clearStatuses();
+    clearJobs();
+    setPhase('Ready');
+    els.nodes[4].classList.remove('err','unreached');
+    els.packets.forEach(function(p){ p.classList.remove('show'); });
+  });
+
+  els.run.addEventListener('click', function(){
+    if (running) return;
+    running = true;
+    setButtonsDisabled(true);
+    runScenario(currentSol).then(function(){
+      running = false;
+      setButtonsDisabled(false);
+    });
+  });
+
+  function runScenario(key){
+    var s = SOLUTIONS[key];
+    var id = caseId();
+    clearStatuses();
+    clearJobs();
+    els.nodes[4].classList.remove('err','unreached');
+    setPhase('Phase 1 — Request In-Flight');
+    logEntry('info', 'Lamar submits a new request for Case <strong>#' + id + '</strong> (' + s.fmt + ' to ' + s.name + ')');
+    setStatus(0, 'Sending…');
+
+    var fwdMsgs = {
+      1: { text: 'Validating & standardizing…' },
+      2: { text: 'Logging exchange (Case #' + id + ')…' },
+      3: { text: 'Converting to ' + s.fmt + ' • routing…' }
+    };
+    var okBackMsgs = {
+      3: { text: 'Received 200 OK — parsing…' },
+      2: { text: 'Logging response…' },
+      1: { text: 'Translating for Lamar…' }
+    };
+    var asyncBackMsgs = {
+      3: { text: 'Async callback received…', cls:'async' },
+      2: { text: 'Logging callback…' },
+      1: { text: 'Relaying to Lamar…' }
+    };
+
+    if (s.fallback) {
+      var fbMsgs = {
+        1: fwdMsgs[1],
+        2: fwdMsgs[2],
+        3: { text: 'Looking up routing rule…' }
+      };
+      // only the first of Agent 2's three jobs runs — the rule lookup is where it stops
+      return travel([0,1,2], false, 'req', fbMsgs, {3:1}).then(function(){
+        markJobErr(3, 0);
+        setStatus(3, 'No adapter match', 'err');
+        els.nodes[4].classList.add('unreached');
+        setStatus(4, 'Never reached');
+        logEntry('err', 'Agent 2: no routing rule / adapter configured yet for ' + s.name + ' — never reaches the payor');
+        return travel([2,1,0], true, 'err', {
+          2: { text: 'Logging fallback event…' },
+          1: { text: 'Translating error for Lamar…' },
+          0: { text: '4xx — manual review', cls:'err' }
+        });
+      }).then(function(){
+        logEntry('err', 'Immediate result: 4xx — flagged for manual review (fail-safe, not a crash)');
+        logEntry('final', 'Exchange ended — case queued for a human to route by hand until the adapter ships.');
+        setPhase('Ended — Routed to Manual Review');
+      });
+    }
+
+    return travel([0,1,2,3], false, 'req', fwdMsgs).then(function(){
+      setStatus(4, 'Received');
+      logEntry('info', s.name + ' receives the request and begins eligibility review');
+      return travel([3,2,1,0], true, 'ok', okBackMsgs);
+    }).then(function(){
+      setStatus(0, '200 OK', 'ok');
+      logEntry('ok', 'Immediate result: 200 OK — request accepted for adjudication');
+
+      var loop = Promise.resolve();
+      if (s.rounds > 0) {
+        setPhase('Phase 2 — Questions and Answers');
+        var rounds = [];
+        for (var i = 1; i <= s.rounds; i++) { rounds.push(i); }
+        loop = rounds.reduce(function(chain, round){
+          return chain.then(function(){
+            setStatus(4, 'Reviewing…', 'wait');
+            return wait(800);
+          }).then(function(){
+            logEntry('async', s.name + ' sends question set #' + round + ' (async callback)');
+            return travel([3,2,1,0], true, 'async', asyncBackMsgs);
+          }).then(function(){
+            setStatus(0, 'Question set #' + round, 'async');
+            return wait(400);
+          }).then(function(){
+            setStatus(0, 'Answering…');
+            logEntry('info', 'Lamar submits answers for question set #' + round);
+            return travel([0,1,2,3], false, 'req', {
+              1: { text: 'Validating answers…' },
+              2: { text: 'Logging answers…' },
+              3: { text: 'Forwarding to ' + s.name + '…' }
+            });
+          }).then(function(){
+            setStatus(4, 'Received');
+            return travel([3,2,1,0], true, 'ok', okBackMsgs);
+          }).then(function(){
+            setStatus(0, '200 OK', 'ok');
+            logEntry('ok', 'Immediate result: 200 OK — answers accepted for question set #' + round);
+          });
+        }, Promise.resolve());
+      } else {
+        logEntry('info', 'No additional questions needed for this case');
+      }
+
+      return loop.then(function(){
+        setPhase('Phase 3 — Async Decision');
+        setStatus(4, 'Adjudicating…', 'wait');
+        logEntry('info', s.name + ' adjudicates the case (real cases: minutes to days)');
+        return wait(1100);
+      }).then(function(){
+        var approved = s.outcome === 'approved';
+        return travel([3,2,1,0], true, 'async', asyncBackMsgs).then(function(){
+          setStatus(0, approved ? 'Approved' : 'Denied', approved ? 'ok' : 'err');
+          setStatus(4, '');
+          logEntry(approved ? 'ok' : 'err', 'Decision received for Case #' + id + ': <strong>' + (approved ? 'Approved' : 'Denied') + '</strong> (async callback)');
+          return hop(0, false, 'ack', 380);
+        }).then(function(){
+          setStatus(1, ''); setStatus(2, ''); setStatus(3, '');
+          logEntry('final', 'Lamar sends a 2xx acknowledgment — exchange closed and fully logged for audit.');
+          setPhase('Closed and Logged');
+        });
+      });
+    });
+  }
+
+  setSolution('agadia');
+})();
+</script>
+
+</body>
+</html>
