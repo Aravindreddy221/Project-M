@@ -26,47 +26,7 @@ body{
 }
 img,svg{max-width:100%;}
 
-.hero{
-  background:linear-gradient(135deg,var(--hero-1),var(--hero-2));
-  color:#fff; padding:56px 32px 46px; text-align:center; position:relative; overflow:hidden;
-}
-.hero::before{
-  content:""; position:absolute; inset:0;
-  background:radial-gradient(circle at 20% 20%, rgba(255,255,255,.10), transparent 45%),
-             radial-gradient(circle at 85% 75%, rgba(255,255,255,.08), transparent 40%);
-}
-.hero-inner{position:relative; max-width:820px; margin:0 auto;}
-.eyebrow{
-  display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:1.6px;
-  text-transform:uppercase; color:#C7D2FE; background:rgba(255,255,255,.12);
-  padding:6px 14px; border-radius:999px; margin-bottom:18px;
-}
-.hero h1{font-size:clamp(26px,4vw,38px); font-weight:800; line-height:1.2; margin:0 0 14px;}
-.hero p{font-size:clamp(14px,1.6vw,16.5px); color:#DCE0FA; margin:0 auto; max-width:640px; line-height:1.6;}
-
-main{max-width:1320px; margin:0 auto; padding:48px 32px 64px;}
-
-.legend-row{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:36px;}
-.legend-card{
-  flex:1; min-width:210px; background:var(--section-bg); border:1px solid var(--card-border);
-  border-radius:14px; padding:16px 18px;
-}
-.legend-card .tag{
-  display:inline-block; font-size:10.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase;
-  padding:3px 9px; border-radius:6px; margin-bottom:8px;
-}
-.legend-card.a1 .tag{background:var(--blue-fill); color:var(--blue-border);}
-.legend-card.app .tag{background:var(--indigo-fill); color:var(--indigo);}
-.legend-card.a2 .tag{background:var(--violet-fill); color:var(--violet-border);}
-.legend-card h4{margin:0 0 4px; font-size:14.5px; font-weight:800;}
-.legend-card p{margin:0; font-size:12.5px; color:var(--slate-600); line-height:1.5;}
-
-.kicker{
-  font-size:13px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase;
-  color:var(--indigo); margin-bottom:10px;
-}
-h2{font-size:clamp(22px,3vw,30px); font-weight:800; margin:0 0 12px; letter-spacing:-.2px;}
-p.lede{font-size:15.5px; color:var(--slate-600); max-width:800px; line-height:1.65; margin:0 0 30px;}
+main{max-width:1400px; margin:0 auto; padding:32px 32px 48px;}
 
 /* ---------- controls ---------- */
 .demo-controls{
@@ -74,22 +34,24 @@ p.lede{font-size:15.5px; color:var(--slate-600); max-width:800px; line-height:1.
   background:var(--section-bg); border:1px solid var(--card-border);
   border-radius:14px; padding:18px 20px;
 }
-.field{display:flex; flex-direction:column; gap:7px; min-width:330px; flex:1;}
+.field{display:flex; flex-direction:column; gap:7px;}
+.field.grow{flex:1; min-width:320px;}
+.field.speed{min-width:150px;}
 .field label{font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.7px; color:var(--slate-400);}
 .select-wrap{position:relative;}
-.select-wrap svg{
+.select-wrap > svg{
   position:absolute; right:14px; top:50%; transform:translateY(-50%);
   width:14px; height:14px; color:var(--slate-400); pointer-events:none;
 }
-select#solSelect{
+.demo-controls select{
   appearance:none; -webkit-appearance:none; width:100%;
   background:#fff; border:1.5px solid var(--card-border); border-radius:10px;
   padding:12px 40px 12px 14px; font-family:inherit; font-size:14px; font-weight:700;
   color:var(--slate-900); cursor:pointer; transition:border-color .15s, box-shadow .15s;
 }
-select#solSelect:hover:not(:disabled){border-color:var(--indigo);}
-select#solSelect:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 4px rgba(67,56,202,.12);}
-select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
+.demo-controls select:hover:not(:disabled){border-color:var(--indigo);}
+.demo-controls select:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 4px rgba(67,56,202,.12);}
+.demo-controls select:disabled{opacity:.55; cursor:not-allowed;}
 .demo-actions{display:flex; gap:10px; margin-left:auto;}
 .btn-run{
   background:var(--indigo); color:#fff; border:none; font-size:14px; font-weight:800;
@@ -104,8 +66,8 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 }
 .btn-reset:hover:not(:disabled){border-color:var(--slate-400);}
 .btn-reset:disabled{opacity:.5; cursor:not-allowed;}
-@media (max-width:880px){
-  .field{min-width:100%;}
+@media (max-width:980px){
+  .field.grow, .field.speed{min-width:100%;}
   .demo-actions{margin-left:0; width:100%;}
   .btn-run, .btn-reset{flex:1; justify-content:center;}
 }
@@ -119,13 +81,13 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 
 /* ---------- stage ---------- */
 .demo-scroll{overflow-x:auto; padding-bottom:6px;}
-.demo-stage{display:flex; align-items:center; gap:0; min-width:1250px; padding:10px 2px 26px;}
+.demo-stage{display:flex; align-items:center; gap:0; min-width:1330px; padding:10px 2px 26px;}
 
 .demo-node{
   background:#fff; border:1.5px solid var(--card-border); border-radius:16px;
   padding:16px 15px; text-align:left; position:relative;
   box-shadow:0 6px 18px rgba(15,23,42,.05); transition:border-color .25s, box-shadow .25s;
-  display:flex; flex-direction:column; flex:1; min-width:172px;
+  display:flex; flex-direction:column; flex:1; min-width:172px; z-index:1;
 }
 .demo-node.active{border-color:var(--indigo); box-shadow:0 10px 26px rgba(67,56,202,.18);}
 .demo-node.lamar{border-color:var(--blue-border); flex:0.78; text-align:center; align-items:center;}
@@ -145,7 +107,6 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 .demo-node .status-line.wait{color:var(--amber-border);}
 .demo-node .status-line.async{color:var(--violet-border);}
 
-/* the matched routing rule shown inside Agent 2 */
 .rule-box{
   border:1px dashed var(--card-border); border-radius:9px; padding:7px 9px; margin-top:2px;
   background:var(--section-bg); transition:border-color .2s, background .2s;
@@ -181,37 +142,60 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 .job-list li.err{color:var(--red); font-weight:700;}
 .job-list li.err::before{background:var(--red); transform:scale(1.9); box-shadow:0 0 0 4px rgba(220,38,38,.16);}
 
-/* straight connectors */
-.demo-connector{flex:0 0 46px; position:relative; height:2px; align-self:center; margin:0 -1px;}
-.demo-connector::before{
-  content:""; position:absolute; top:0; left:0; right:0; height:2px;
+/* ---------- connectors: one separate numbered line per transaction ---------- */
+.demo-connector{flex:0 0 74px; position:relative; align-self:center; height:172px;}
+.conn-base{
+  position:absolute; top:50%; left:0; right:0; height:2px; margin-top:-1px;
   background:repeating-linear-gradient(to right, var(--card-border) 0 6px, transparent 6px 11px);
 }
-.demo-packet{
-  position:absolute; top:50%; width:12px; height:12px; border-radius:50%;
-  transform:translate(-50%,-50%); left:0%; opacity:0; transition:left .40s linear, opacity .15s;
+.tx-stack{position:absolute; left:0; right:0; top:50%; height:0;}
+.tx-line{
+  position:absolute; height:2.5px; width:0; margin-top:-1.25px; border-radius:2px;
+  background:currentColor;
 }
-.demo-packet.show{opacity:1;}
-.demo-packet.req{background:var(--slate-900);}
-.demo-packet.ok{background:var(--emerald);}
-.demo-packet.err{background:var(--red);}
-.demo-packet.async{background:#fff; border:2.5px solid var(--violet-border);}
-.demo-packet.ack{background:var(--emerald); border:2px solid #fff;}
+.tx-line.fwd{left:0;}
+.tx-line.rev{right:0;}
+.tx-line::after{
+  content:''; position:absolute; top:50%; margin-top:-4px; width:0; height:0;
+  border-top:4px solid transparent; border-bottom:4px solid transparent;
+}
+.tx-line.fwd::after{right:-2px; border-left:6px solid currentColor;}
+.tx-line.rev::after{left:-2px; border-right:6px solid currentColor;}
+.tx-line.req, .tx-dot.req{color:var(--slate-900);}
+.tx-line.ok,  .tx-dot.ok{color:var(--emerald);}
+.tx-line.err, .tx-dot.err{color:var(--red);}
+.tx-line.async, .tx-dot.async{color:var(--violet-border);}
+.tx-line.ack, .tx-dot.ack{color:var(--emerald);}
+.tx-dot{
+  position:absolute; width:9px; height:9px; border-radius:50%;
+  transform:translate(-50%,-50%); background:currentColor; z-index:2;
+}
+.tx-dot.async{background:#fff; border:2px solid currentColor;}
+.tx-num{
+  position:absolute; left:50%; transform:translate(-50%,-50%);
+  min-width:15px; height:15px; padding:0 3px; border-radius:8px;
+  background:#fff; border:1px solid var(--card-border);
+  font-size:9px; font-weight:800; color:var(--slate-600);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .3s; z-index:3;
+}
 
-/* fan-out to every downstream solution */
-.fanout{flex:0 0 116px; align-self:stretch; position:relative;}
+/* ---------- fan-out to every downstream solution ---------- */
+.fanout{flex:0 0 132px; align-self:stretch; position:relative;}
 .fanout svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
-.fan-path{fill:none; stroke:var(--card-border); stroke-width:2; stroke-dasharray:6 5; transition:stroke .25s, stroke-width .25s, opacity .25s;}
-.fan-path.target{stroke:var(--violet-border); stroke-width:2.5; stroke-dasharray:none; opacity:1;}
-.fan-path.dim{opacity:.5;}
-.fan-path.bad{stroke:var(--red); stroke-width:2.5; stroke-dasharray:3 4;}
+.fan-path{fill:none; stroke:var(--card-border); stroke-width:2; stroke-dasharray:6 5; transition:stroke .25s, opacity .25s;}
+.fan-path.target{stroke:var(--violet-border); stroke-width:2; stroke-dasharray:5 5; opacity:.65;}
+.fan-path.dim{opacity:.45;}
+.fan-path.bad{stroke:var(--red); stroke-width:2; stroke-dasharray:3 4;}
+.fan-line{fill:none; stroke-width:2.5; stroke-linecap:round;}
+.fan-line.req{stroke:var(--slate-900);}
+.fan-line.ok{stroke:var(--emerald);}
+.fan-line.err{stroke:var(--red);}
+.fan-line.async{stroke:var(--violet-border);}
 #fanDot{opacity:0; transition:opacity .15s;}
 
-/* downstream column */
-.downstream{
-  flex:0 0 280px; display:flex; flex-direction:column; gap:9px;
-  border-left:0; padding-left:0;
-}
+/* ---------- downstream column ---------- */
+.downstream{flex:0 0 282px; display:flex; flex-direction:column; gap:9px;}
 .downstream .ds-head{
   font-size:10px; font-weight:800; letter-spacing:.9px; text-transform:uppercase;
   color:var(--slate-400); margin-bottom:1px;
@@ -233,9 +217,7 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 .sol-card .st.err{color:var(--red);}
 .sol-card .st.wait{color:var(--amber-border);}
 .sol-card.planned{border-style:dashed;}
-/* not the selected route */
 .sol-card.off{opacity:.34;}
-/* the selected route */
 .sol-card.target{
   border-color:var(--amber-border); background:var(--amber-fill);
   box-shadow:0 8px 22px rgba(180,83,9,.16); transform:translateX(3px);
@@ -243,7 +225,6 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 .sol-card.target .fmt{background:#fff; color:var(--amber-border);}
 .sol-card.target .nm{color:#7C2D12;}
 .sol-card.working{border-color:var(--amber-border); box-shadow:0 10px 26px rgba(180,83,9,.22);}
-.sol-card.unreached{opacity:.3;}
 .sol-card.badroute{border-color:var(--red); background:#FEF2F2;}
 .sol-card.badroute .nm{color:var(--red);}
 
@@ -251,11 +232,26 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
   display:none; font-size:12.5px; color:var(--slate-400); text-align:center;
   margin-top:-14px; margin-bottom:22px; font-style:italic;
 }
-@media (max-width:1320px){ .scroll-hint{display:block;} }
+@media (max-width:1400px){ .scroll-hint{display:block;} }
+
+/* ---------- line legend ---------- */
+.line-legend{display:flex; flex-wrap:wrap; gap:18px; margin:0 0 18px; align-items:center;}
+.line-legend .li{display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--slate-600); font-weight:600;}
+.line-legend .sw{width:26px; height:3px; border-radius:2px; flex:0 0 auto;}
+.line-legend .sw.req{background:var(--slate-900);}
+.line-legend .sw.ok{background:var(--emerald);}
+.line-legend .sw.async{background:var(--violet-border);}
+.line-legend .sw.err{background:var(--red);}
+.line-legend .sw.base{background:repeating-linear-gradient(to right, var(--card-border) 0 6px, transparent 6px 11px);}
+.line-legend .numchip{
+  min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#fff;
+  border:1px solid var(--card-border); font-size:9px; font-weight:800; color:var(--slate-600);
+  display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
 
 .demo-log{
   background:var(--section-bg); border:1px solid var(--card-border); border-radius:14px;
-  padding:6px 18px; max-height:250px; overflow-y:auto; margin-top:6px;
+  padding:6px 18px; max-height:280px; overflow-y:auto; margin-top:6px;
 }
 .demo-log .entry{
   display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--card-border);
@@ -263,13 +259,19 @@ select#solSelect:disabled{opacity:.55; cursor:not-allowed;}
 }
 .demo-log .entry:last-child{border-bottom:none;}
 .demo-log .entry .t{color:var(--slate-400); font-size:11.5px; font-weight:700; min-width:64px; padding-top:1px;}
-.demo-log .entry .dot{width:8px; height:8px; border-radius:50%; margin-top:5px; flex:0 0 auto; background:var(--slate-400);}
+.demo-log .entry .n{
+  min-width:19px; height:19px; border-radius:10px; background:#fff; border:1px solid var(--card-border);
+  font-size:10px; font-weight:800; color:var(--slate-600);
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.demo-log .entry .n.blank{border:none; background:none;}
+.demo-log .entry .dot{width:8px; height:8px; border-radius:50%; margin-top:6px; flex:0 0 auto; background:var(--slate-400);}
 .demo-log .entry.ok .dot{background:var(--emerald);}
 .demo-log .entry.err .dot{background:var(--red);}
 .demo-log .entry.async .dot{background:var(--violet-border);}
 .demo-log .entry.route .dot{background:var(--amber-border);}
 .demo-log .entry.final .dot{background:var(--indigo);}
-.demo-log .entry .msg{color:var(--slate-900); line-height:1.45;}
+.demo-log .entry .msg{color:var(--slate-900); line-height:1.5; padding-top:1px;}
 .demo-log .empty{color:var(--slate-400); font-size:13px; padding:18px 0; text-align:center;}
 
 .demo-note{font-size:12px; color:var(--slate-400); font-style:italic; margin-top:16px;}
@@ -283,40 +285,10 @@ footer strong{color:var(--slate-600);}
 </head>
 <body>
 
-<header class="hero">
-  <div class="hero-inner">
-    <span class="eyebrow">Internal Processing Walkthrough</span>
-    <h1>What Actually Happens Inside AnvayaRx</h1>
-    <p>Every payor solution is wired up and waiting. Pick one, and watch the request cross all three internal hops and get routed to exactly that endpoint — while the others stay untouched.</p>
-  </div>
-</header>
-
 <main>
 
-  <div class="legend-row">
-    <div class="legend-card a1">
-      <span class="tag">Agent 1 — Inbound</span>
-      <h4>Standardize</h4>
-      <p>Authenticates the caller, validates the incoming XML or JSON, and converts it into AnvayaRx's one canonical format.</p>
-    </div>
-    <div class="legend-card app">
-      <span class="tag">AnvayaRx App — Not An Agent</span>
-      <h4>Audit and Log</h4>
-      <p>Writes an immutable, Case-linked audit entry for every exchange, then hands the standardized request to Agent 2.</p>
-    </div>
-    <div class="legend-card a2">
-      <span class="tag">Agent 2 — Outbound</span>
-      <h4>Route, Convert, Deliver</h4>
-      <p>Matches the payor group to its routing rule, converts to that solution's own schema, and delivers to the right endpoint.</p>
-    </div>
-  </div>
-
-  <div class="kicker">Interactive Walkthrough</div>
-  <h2>Pick a Payor Solution and Watch It Route</h2>
-  <p class="lede">All four downstream solutions are shown on the right at all times. Choose one from the dropdown and the routing rule inside Agent&nbsp;2 selects it — the request travels only down that branch, in that solution's own format.</p>
-
   <div class="demo-controls">
-    <div class="field">
+    <div class="field grow">
       <label for="solSelect">Payor group and target solution</label>
       <div class="select-wrap">
         <select id="solSelect">
@@ -324,6 +296,18 @@ footer strong{color:var(--slate-600);}
           <option value="solb">Payor Group B → Solution B · JSON (new)</option>
           <option value="solc">Payor Group C → Solution C · XML / JSON (new)</option>
           <option value="soln">Payor Group N → Solution N · adapter not configured</option>
+        </select>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    <div class="field speed">
+      <label for="speedSelect">Playback speed</label>
+      <div class="select-wrap">
+        <select id="speedSelect">
+          <option value="verySlow">Very slow</option>
+          <option value="slow" selected>Slow</option>
+          <option value="normal">Normal</option>
+          <option value="fast">Fast</option>
         </select>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
@@ -339,6 +323,15 @@ footer strong{color:var(--slate-600);}
 
   <div class="demo-phase" id="demoPhase"><span class="dot"></span> Ready</div>
 
+  <div class="line-legend">
+    <div class="li"><span class="sw base"></span> Wired, idle</div>
+    <div class="li"><span class="sw req"></span> Request out</div>
+    <div class="li"><span class="sw ok"></span> Immediate 200 OK</div>
+    <div class="li"><span class="sw async"></span> Async callback</div>
+    <div class="li"><span class="sw err"></span> Error / fail-safe</div>
+    <div class="li"><span class="numchip">3</span> Transaction number — matches the log</div>
+  </div>
+
   <div class="demo-scroll">
     <div class="demo-stage" id="demoStage">
 
@@ -349,7 +342,10 @@ footer strong{color:var(--slate-600);}
         <div class="status-line" id="statusLamar"></div>
       </div>
 
-      <div class="demo-connector"><div class="demo-packet" id="packet0"></div></div>
+      <div class="demo-connector">
+        <div class="conn-base"></div>
+        <div class="tx-stack" id="stack0"></div>
+      </div>
 
       <div class="demo-node agent1" id="nodeAgent1">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/><path d="M8.5 12 11 14.5 16 9"/></svg></div>
@@ -363,7 +359,10 @@ footer strong{color:var(--slate-600);}
         <div class="status-line" id="statusAgent1"></div>
       </div>
 
-      <div class="demo-connector"><div class="demo-packet" id="packet1"></div></div>
+      <div class="demo-connector">
+        <div class="conn-base"></div>
+        <div class="tx-stack" id="stack1"></div>
+      </div>
 
       <div class="demo-node app" id="nodeApp">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="13.5" x2="15" y2="13.5"/><line x1="9" y1="17" x2="12.5" y2="17"/></svg></div>
@@ -377,7 +376,10 @@ footer strong{color:var(--slate-600);}
         <div class="status-line" id="statusApp"></div>
       </div>
 
-      <div class="demo-connector"><div class="demo-packet" id="packet2"></div></div>
+      <div class="demo-connector">
+        <div class="conn-base"></div>
+        <div class="tx-stack" id="stack2"></div>
+      </div>
 
       <div class="demo-node agent2" id="nodeAgent2">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.2 11 15.8 7"/><path d="M8.2 13 15.8 17"/></svg></div>
@@ -398,6 +400,7 @@ footer strong{color:var(--slate-600);}
       <div class="fanout" id="fanout">
         <svg id="fanSvg" aria-hidden="true">
           <g id="fanPaths"></g>
+          <g id="fanLines"></g>
           <circle id="fanDot" r="6" fill="#0F172A"></circle>
         </svg>
       </div>
@@ -465,11 +468,12 @@ footer strong{color:var(--slate-600);}
     runLabel: document.getElementById('demoRunLabel'),
     reset: document.getElementById('demoReset'),
     select: document.getElementById('solSelect'),
+    speed: document.getElementById('speedSelect'),
     ruleBox: document.getElementById('ruleBox'),
     ruleValue: document.getElementById('ruleValue'),
-    fanout: document.getElementById('fanout'),
     fanSvg: document.getElementById('fanSvg'),
     fanPaths: document.getElementById('fanPaths'),
+    fanLines: document.getElementById('fanLines'),
     fanDot: document.getElementById('fanDot'),
     nodes: [
       document.getElementById('nodeLamar'),
@@ -483,10 +487,10 @@ footer strong{color:var(--slate-600);}
       document.getElementById('statusApp'),
       document.getElementById('statusAgent2')
     ],
-    packets: [
-      document.getElementById('packet0'),
-      document.getElementById('packet1'),
-      document.getElementById('packet2')
+    stacks: [
+      document.getElementById('stack0'),
+      document.getElementById('stack1'),
+      document.getElementById('stack2')
     ]
   };
 
@@ -498,7 +502,19 @@ footer strong{color:var(--slate-600);}
 
   var currentSol = 'agadia';
   var running = false;
-  var HOP = 280, HOLD = 90, PROC = 300, FAN = 620;
+
+  var LANE = 15;      // vertical gap between transaction lines on a connector
+  var FAN_LANE = 7;   // vertical gap between branch curves
+
+  /* ---------- playback speed ---------- */
+  var BASE = { hop:300, hold:100, proc:320, fan:640, review:800, adjud:1100, gap:400, ack:380 };
+  var MULT = { verySlow:3.0, slow:2.0, normal:1.4, fast:1.0 };
+  var T = {};
+  function applySpeed(){
+    var m = MULT[els.speed.value] || MULT.slow;
+    Object.keys(BASE).forEach(function(k){ T[k] = Math.round(BASE[k] * m); });
+  }
+  els.speed.addEventListener('change', function(){ if (!running) applySpeed(); });
 
   var JOBS = {
     1: document.getElementById('jobsAgent1'),
@@ -509,8 +525,34 @@ footer strong{color:var(--slate-600);}
   function wait(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
   function setPhase(text){ els.phase.innerHTML = '<span class="dot"></span> ' + text; }
 
+  /* ---------- lane bookkeeping ---------- */
+  // how many separate transaction lines each connector and the branch will carry
+  function laneCounts(s){
+    if (s.fallback) return { conn:[2,2,2], fan:0 };
+    var r = s.rounds;
+    return { conn:[4 + 3*r, 3 + 3*r, 3 + 3*r], fan: 3 + 3*r };
+  }
+  var laneNext = [0,0,0], laneTotal = [1,1,1];
+  var fanNext = 0, fanTotal = 1;
+
+  function laneY(idx, total){ return (idx - (total - 1) / 2) * LANE; }
+
+  function clearLines(){
+    els.stacks.forEach(function(st){ st.textContent = ''; });
+    els.fanLines.textContent = '';
+    els.fanDot.style.opacity = '0';
+    laneNext = [0,0,0];
+    fanNext = 0;
+  }
+  function prepareLanes(s){
+    var c = laneCounts(s);
+    laneTotal = c.conn;
+    fanTotal = Math.max(1, c.fan);
+    clearLines();
+  }
+
   /* ---------- fan-out geometry ---------- */
-  var paths = {};
+  var paths = {}, geo = {};
 
   function buildFanout(){
     var box = els.fanSvg.getBoundingClientRect();
@@ -521,24 +563,31 @@ footer strong{color:var(--slate-600);}
     var y0 = (a2.top + a2.height / 2) - box.top;
 
     els.fanPaths.textContent = '';
-    paths = {};
+    paths = {}; geo = {};
+
     ORDER.forEach(function(key){
       var r = cards[key].getBoundingClientRect();
       var y1 = (r.top + r.height / 2) - box.top;
-      var d = 'M 0,' + y0.toFixed(1) +
-              ' C ' + (w * 0.42).toFixed(1) + ',' + y0.toFixed(1) +
-              ' '   + (w * 0.58).toFixed(1) + ',' + y1.toFixed(1) +
-              ' '   + w.toFixed(1) + ',' + y1.toFixed(1);
+      geo[key] = { y0:y0, y1:y1, w:w };
       var p = document.createElementNS(SVGNS, 'path');
-      p.setAttribute('d', d);
+      p.setAttribute('d', curveD(key, 0));
       p.setAttribute('class', 'fan-path');
       els.fanPaths.appendChild(p);
       paths[key] = p;
     });
-    paintRoute();
+    paintRoute(SOLUTIONS[currentSol].fallback);
   }
 
-  // highlight the selected branch, fade the rest
+  function curveD(key, offset){
+    var g = geo[key];
+    if (!g) return '';
+    var a = g.y0 + offset, b = g.y1 + offset, w = g.w;
+    return 'M 0,' + a.toFixed(1) +
+           ' C ' + (w * 0.42).toFixed(1) + ',' + a.toFixed(1) +
+           ' '   + (w * 0.58).toFixed(1) + ',' + b.toFixed(1) +
+           ' '   + w.toFixed(1) + ',' + b.toFixed(1);
+  }
+
   function paintRoute(bad){
     ORDER.forEach(function(key){
       var p = paths[key];
@@ -597,13 +646,15 @@ footer strong{color:var(--slate-600);}
     el.className = 'st' + (cls ? ' ' + cls : '');
   }
 
-  function logEntry(type, html){
+  function logEntry(type, html, num){
     var empty = els.log.querySelector('.empty');
     if (empty) empty.remove();
     var row = document.createElement('div');
     row.className = 'entry ' + type;
     var t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-    row.innerHTML = '<div class="t">'+t+'</div><div class="dot"></div><div class="msg">'+html+'</div>';
+    var chip = num ? '<div class="n">' + num + '</div>' : '<div class="n blank"></div>';
+    row.innerHTML = '<div class="t">'+t+'</div>' + chip +
+                    '<div class="dot"></div><div class="msg">'+html+'</div>';
     els.log.appendChild(row);
     els.log.scrollTop = els.log.scrollHeight;
   }
@@ -615,10 +666,9 @@ footer strong{color:var(--slate-600);}
     els.ruleValue.textContent = s.fallback
       ? s.group + ' → no rule configured'
       : s.group + ' → ' + s.name + ' · ' + s.fmt;
-    // an unconfigured payor group has no usable route — say so before it is even run
     els.ruleBox.className = 'rule-box' + (s.fallback ? ' bad' : '');
     ORDER.forEach(function(k){
-      cards[k].classList.remove('target','off','working','unreached','badroute');
+      cards[k].classList.remove('target','off','working','badroute');
       cards[k].classList.add(k === key ? 'target' : 'off');
     });
     if (s.fallback) cards[key].classList.add('badroute');
@@ -631,26 +681,50 @@ footer strong{color:var(--slate-600);}
     resetRun();
   });
 
-  /* ---------- straight-section hops ---------- */
-  function hop(connIdx, reverse, type, dur, holdActive){
+  /* ---------- one transaction line across one connector ---------- */
+  function hop(connIdx, reverse, type, dur, num, holdActive){
     var fromIdx = reverse ? connIdx + 1 : connIdx;
     var toIdx = reverse ? connIdx : connIdx + 1;
-    var packetEl = els.packets[connIdx];
     var nodeFrom = els.nodes[fromIdx];
     var nodeTo = els.nodes[toIdx];
+    var stack = els.stacks[connIdx];
+
+    var lane = laneNext[connIdx]++;
+    var y = laneY(lane, laneTotal[connIdx]);
+
+    var line = document.createElement('div');
+    line.className = 'tx-line ' + type + ' ' + (reverse ? 'rev' : 'fwd');
+    line.style.top = y + 'px';
+    stack.appendChild(line);
+
+    var dot = document.createElement('span');
+    dot.className = 'tx-dot ' + type;
+    dot.style.top = y + 'px';
+    dot.style.left = reverse ? '100%' : '0%';
+    stack.appendChild(dot);
+
+    var badge = document.createElement('span');
+    badge.className = 'tx-num';
+    badge.style.top = y + 'px';
+    badge.textContent = num;
+    stack.appendChild(badge);
+
+    line.style.transition = 'none';
+    line.style.width = '0%';
+    dot.style.transition = 'none';
+    void line.offsetWidth;
+    line.style.transition = 'width ' + dur + 'ms linear';
+    dot.style.transition = 'left ' + dur + 'ms linear';
+    nodeFrom.classList.add('active');
+
     return new Promise(function(resolve){
-      packetEl.className = 'demo-packet ' + type;
-      packetEl.style.transition = 'none';
-      packetEl.style.left = reverse ? '100%' : '0%';
-      void packetEl.offsetWidth;
-      packetEl.style.transition = 'left ' + dur + 'ms linear, opacity .15s';
-      nodeFrom.classList.add('active');
       requestAnimationFrame(function(){
-        packetEl.classList.add('show');
-        packetEl.style.left = reverse ? '0%' : '100%';
+        line.style.width = '100%';
+        dot.style.left = reverse ? '0%' : '100%';
       });
       setTimeout(function(){
-        packetEl.classList.remove('show');
+        if (dot.parentNode) dot.parentNode.removeChild(dot);
+        badge.style.opacity = '1';
         nodeFrom.classList.remove('active');
         nodeTo.classList.add('active');
         if (!holdActive) setTimeout(function(){ nodeTo.classList.remove('active'); }, 240);
@@ -659,36 +733,53 @@ footer strong{color:var(--slate-600);}
     });
   }
 
-  function travel(connIdxs, reverse, type, messages, jobLimits){
+  function travel(connIdxs, reverse, type, num, messages, jobLimits){
     return connIdxs.reduce(function(chain, connIdx){
-      return chain.then(function(){ return hop(connIdx, reverse, type, HOP, true); })
+      return chain.then(function(){ return hop(connIdx, reverse, type, T.hop, num, true); })
         .then(function(toIdx){
           var m = messages && messages[toIdx];
           if (m) setStatus(toIdx, m.text, m.cls);
           var limit = jobLimits && jobLimits[toIdx];
-          return runJobs(toIdx, reverse, PROC, limit)
-            .then(function(){ return wait(HOLD); })
+          return runJobs(toIdx, reverse, T.proc, limit)
+            .then(function(){ return wait(T.hold); })
             .then(function(){ els.nodes[toIdx].classList.remove('active'); });
         });
     }, Promise.resolve());
   }
 
-  /* ---------- the branch hop, along the selected curve ---------- */
+  /* ---------- one transaction line along the selected branch ---------- */
   var DOT_COLORS = { req:'#0F172A', ok:'#059669', err:'#DC2626', async:'#7C3AED', ack:'#059669' };
 
-  function fanHop(reverse, type){
-    var p = paths[currentSol];
-    if (!p) return wait(FAN);
+  function fanHop(reverse, type, num){
+    if (!geo[currentSol]) return wait(T.fan);
+    var lane = fanNext++;
+    var off = laneYFan(lane);
+    var d = curveD(currentSol, off);
+
+    var p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('d', d);
+    p.setAttribute('class', 'fan-line ' + type);
+    els.fanLines.appendChild(p);
+
     var len = p.getTotalLength();
+    var dur = T.fan;
+    p.style.transition = 'none';
+    p.style.strokeDasharray = String(len);
+    p.style.strokeDashoffset = String(reverse ? -len : len);
+    void p.getBoundingClientRect();
+    p.style.transition = 'stroke-dashoffset ' + dur + 'ms linear';
+    requestAnimationFrame(function(){ p.style.strokeDashoffset = '0'; });
+
     els.fanDot.setAttribute('fill', DOT_COLORS[type] || '#0F172A');
     if (!reverse) els.nodes[3].classList.add('active');
     else cards[currentSol].classList.add('working');
+
     return new Promise(function(resolve){
       var start = null;
       els.fanDot.style.opacity = '1';
       function frame(ts){
         if (start === null) start = ts;
-        var t = Math.min(1, (ts - start) / FAN);
+        var t = Math.min(1, (ts - start) / dur);
         var pt = p.getPointAtLength((reverse ? 1 - t : t) * len);
         els.fanDot.setAttribute('cx', pt.x);
         els.fanDot.setAttribute('cy', pt.y);
@@ -708,6 +799,7 @@ footer strong{color:var(--slate-600);}
       requestAnimationFrame(frame);
     });
   }
+  function laneYFan(idx){ return (idx - (fanTotal - 1) / 2) * FAN_LANE; }
 
   function caseId(){ return 'PA-' + Math.floor(10000 + Math.random() * 89999); }
 
@@ -715,6 +807,7 @@ footer strong{color:var(--slate-600);}
     els.run.disabled = disabled;
     els.reset.disabled = disabled;
     els.select.disabled = disabled;
+    els.speed.disabled = disabled;
     els.runLabel.textContent = disabled ? 'Running…' : 'Send Prior Authorization Request';
   }
 
@@ -722,10 +815,9 @@ footer strong{color:var(--slate-600);}
     els.log.innerHTML = '<div class="empty">No requests sent yet — choose a payor group above and click &quot;Send Prior Authorization Request.&quot;</div>';
     clearStatuses();
     clearJobs();
+    clearLines();
     setPhase('Ready');
-    els.packets.forEach(function(p){ p.classList.remove('show'); });
-    els.fanDot.style.opacity = '0';
-    ORDER.forEach(function(k){ cards[k].classList.remove('working','unreached'); });
+    ORDER.forEach(function(k){ cards[k].classList.remove('working'); });
     setSolution(currentSol);
   }
 
@@ -734,6 +826,7 @@ footer strong{color:var(--slate-600);}
   els.run.addEventListener('click', function(){
     if (running) return;
     running = true;
+    applySpeed();
     setButtonsDisabled(true);
     runScenario(currentSol).then(function(){
       running = false;
@@ -744,13 +837,14 @@ footer strong{color:var(--slate-600);}
   function runScenario(key){
     var s = SOLUTIONS[key];
     var id = caseId();
+    var tx = 0;   // transaction counter — the number printed on each line
+
     clearStatuses();
     clearJobs();
-    ORDER.forEach(function(k){ cards[k].classList.remove('working','unreached'); });
-    // back to un-lit so the "rule matched" moment reads on every run
+    prepareLanes(s);
+    ORDER.forEach(function(k){ cards[k].classList.remove('working'); });
     els.ruleBox.className = 'rule-box' + (s.fallback ? ' bad' : '');
     setPhase('Phase 1 — Request In-Flight');
-    logEntry('info', 'Lamar submits a new request for Case <strong>#' + id + '</strong> — ' + s.group);
     setStatus(0, 'Sending…');
 
     var fwdMsgs = {
@@ -761,7 +855,8 @@ footer strong{color:var(--slate-600);}
     var okBackMsgs = {
       3: { text: 'Received 200 OK — parsing…' },
       2: { text: 'Logging response…' },
-      1: { text: 'Translating for Lamar…' }
+      1: { text: 'Translating for Lamar…' },
+      0: { text: '200 OK', cls:'ok' }
     };
     var asyncBackMsgs = {
       3: { text: 'Async callback received…', cls:'async' },
@@ -769,9 +864,12 @@ footer strong{color:var(--slate-600);}
       1: { text: 'Relaying to Lamar…' }
     };
 
-    /* --- fallback: the rule lookup finds nothing --- */
+    /* --- no routing rule --- */
     if (s.fallback) {
-      return travel([0,1,2], false, 'req', fwdMsgs, {3:1}).then(function(){
+      tx++;
+      logEntry('info', 'Lamar submits a new request for Case <strong>#' + id + '</strong> — ' + s.group, tx);
+      var reqTx = tx;
+      return travel([0,1,2], false, 'req', reqTx, fwdMsgs, {3:1}).then(function(){
         markJobErr(3, 0);
         els.ruleBox.className = 'rule-box bad';
         paintRoute(true);
@@ -779,84 +877,98 @@ footer strong{color:var(--slate-600);}
         setSolStatus(key, 'Never reached', 'err');
         setStatus(3, 'No routing rule', 'err');
         logEntry('err', 'Agent 2: no routing rule for ' + s.group + ' — nothing is delivered to any solution');
-        return travel([2,1,0], true, 'err', {
+        return wait(T.hold);
+      }).then(function(){
+        tx++;
+        logEntry('err', 'Immediate result: <strong>4xx</strong> — flagged for manual review (fail-safe, not a crash)', tx);
+        return travel([2,1,0], true, 'err', tx, {
           2: { text: 'Logging fallback event…' },
           1: { text: 'Translating error for Lamar…' },
           0: { text: '4xx — manual review', cls:'err' }
         });
       }).then(function(){
-        logEntry('err', 'Immediate result: 4xx — flagged for manual review (fail-safe, not a crash)');
         logEntry('final', 'Exchange ended — case queued for a human until the ' + s.name + ' adapter ships.');
         setPhase('Ended — Routed to Manual Review');
       });
     }
 
     /* --- normal route --- */
-    return travel([0,1,2], false, 'req', fwdMsgs).then(function(){
+    tx++;
+    logEntry('info', 'Lamar submits a new request for Case <strong>#' + id + '</strong> — ' + s.group, tx);
+    var t1 = tx;
+    return travel([0,1,2], false, 'req', t1, fwdMsgs).then(function(){
       els.ruleBox.className = 'rule-box lit';
       logEntry('route', 'Rule matched: <strong>' + s.group + ' → ' + s.name + '</strong> — converting to ' + s.fmt + ', all other solutions skipped');
       setStatus(3, 'Delivering to ' + s.name + '…');
-      return fanHop(false, 'req');
+      return wait(T.hold);
+    }).then(function(){
+      return fanHop(false, 'req', t1);
     }).then(function(){
       setStatus(3, '');
       setSolStatus(key, 'Received');
       logEntry('info', s.name + ' receives the request and begins eligibility review');
-      return fanHop(true, 'ok');
+      return wait(T.hold);
     }).then(function(){
-      setStatus(3, okBackMsgs[3].text);
-      return runJobs(3, true, PROC).then(function(){
+      tx++;
+      var t2 = tx;
+      logEntry('ok', 'Immediate result: <strong>200 OK</strong> — request accepted for adjudication', t2);
+      return fanHop(true, 'ok', t2).then(function(){
+        setStatus(3, okBackMsgs[3].text);
+        return runJobs(3, true, T.proc);
+      }).then(function(){
         els.nodes[3].classList.remove('active');
-        return travel([2,1], true, 'ok', okBackMsgs);
+        return travel([2,1,0], true, 'ok', t2, okBackMsgs);
       });
     }).then(function(){
-      setStatus(0, '200 OK', 'ok');
-      logEntry('ok', 'Immediate result: 200 OK — request accepted for adjudication');
-
       var loop = Promise.resolve();
       if (s.rounds > 0) {
         setPhase('Phase 2 — Questions and Answers');
         var rounds = [];
         for (var i = 1; i <= s.rounds; i++) { rounds.push(i); }
         loop = rounds.reduce(function(chain, round){
+          var tq, ta, tk;
           return chain.then(function(){
             setSolStatus(key, 'Reviewing…', 'wait');
-            return wait(800);
+            return wait(T.review);
           }).then(function(){
-            logEntry('async', s.name + ' sends question set #' + round + ' (async callback)');
+            tx++; tq = tx;
+            logEntry('async', s.name + ' sends <strong>question set #' + round + '</strong> (async callback)', tq);
             setSolStatus(key, 'Question set #' + round);
-            return fanHop(true, 'async');
+            return fanHop(true, 'async', tq);
           }).then(function(){
             setStatus(3, asyncBackMsgs[3].text, 'async');
-            return runJobs(3, true, PROC);
+            return runJobs(3, true, T.proc);
           }).then(function(){
             els.nodes[3].classList.remove('active');
-            return travel([2,1], true, 'async', asyncBackMsgs);
+            return travel([2,1,0], true, 'async', tq, asyncBackMsgs);
           }).then(function(){
             setStatus(0, 'Question set #' + round, 'async');
-            return wait(400);
+            return wait(T.gap);
           }).then(function(){
+            tx++; ta = tx;
             setStatus(0, 'Answering…');
-            logEntry('info', 'Lamar submits answers for question set #' + round);
-            return travel([0,1,2], false, 'req', {
+            logEntry('info', 'Lamar submits <strong>answers for question set #' + round + '</strong>', ta);
+            return travel([0,1,2], false, 'req', ta, {
               1: { text: 'Validating answers…' },
               2: { text: 'Logging answers…' },
               3: { text: 'Converting to ' + s.fmt + '…' }
             });
           }).then(function(){
-            return fanHop(false, 'req');
+            return fanHop(false, 'req', ta);
           }).then(function(){
             setStatus(3, '');
             setSolStatus(key, 'Received');
-            return fanHop(true, 'ok');
+            return wait(T.hold);
+          }).then(function(){
+            tx++; tk = tx;
+            logEntry('ok', 'Immediate result: <strong>200 OK</strong> — answers accepted for question set #' + round, tk);
+            return fanHop(true, 'ok', tk);
           }).then(function(){
             setStatus(3, okBackMsgs[3].text);
-            return runJobs(3, true, PROC);
+            return runJobs(3, true, T.proc);
           }).then(function(){
             els.nodes[3].classList.remove('active');
-            return travel([2,1], true, 'ok', okBackMsgs);
-          }).then(function(){
-            setStatus(0, '200 OK', 'ok');
-            logEntry('ok', 'Immediate result: 200 OK — answers accepted for question set #' + round);
+            return travel([2,1,0], true, 'ok', tk, okBackMsgs);
           });
         }, Promise.resolve());
       } else {
@@ -867,35 +979,42 @@ footer strong{color:var(--slate-600);}
         setPhase('Phase 3 — Async Decision');
         setSolStatus(key, 'Adjudicating…', 'wait');
         logEntry('info', s.name + ' adjudicates the case (real cases: minutes to days)');
-        return wait(1100);
+        return wait(T.adjud);
       }).then(function(){
         var approved = s.outcome === 'approved';
+        tx++;
+        var td = tx;
         setSolStatus(key, approved ? 'Approved' : 'Denied', approved ? 'ok' : 'err');
-        return fanHop(true, 'async');
+        logEntry(approved ? 'ok' : 'err', 'Decision for Case #' + id + ': <strong>' + (approved ? 'Approved' : 'Denied') + '</strong> (async callback)', td);
+        return fanHop(true, 'async', td).then(function(){
+          setStatus(3, asyncBackMsgs[3].text, 'async');
+          return runJobs(3, true, T.proc);
+        }).then(function(){
+          els.nodes[3].classList.remove('active');
+          return travel([2,1,0], true, 'async', td, {
+            2: asyncBackMsgs[2],
+            1: asyncBackMsgs[1],
+            0: { text: approved ? 'Approved' : 'Denied', cls: approved ? 'ok' : 'err' }
+          });
+        });
       }).then(function(){
-        setStatus(3, asyncBackMsgs[3].text, 'async');
-        return runJobs(3, true, PROC);
+        return wait(T.hold);
       }).then(function(){
-        els.nodes[3].classList.remove('active');
-        return travel([2,1], true, 'async', asyncBackMsgs);
-      }).then(function(){
-        var approved = s.outcome === 'approved';
-        setStatus(0, approved ? 'Approved' : 'Denied', approved ? 'ok' : 'err');
-        logEntry(approved ? 'ok' : 'err', 'Decision received for Case #' + id + ': <strong>' + (approved ? 'Approved' : 'Denied') + '</strong> (async callback)');
-        return hop(0, false, 'ack', 380);
+        tx++;
+        logEntry('final', 'Lamar sends a <strong>2xx acknowledgment</strong> — exchange closed and fully logged for audit.', tx);
+        return hop(0, false, 'ack', T.ack, tx);
       }).then(function(){
         els.nodes[1].classList.remove('active');
         setStatus(1, ''); setStatus(2, ''); setStatus(3, '');
-        logEntry('final', 'Lamar sends a 2xx acknowledgment — exchange closed and fully logged for audit.');
         setPhase('Closed and Logged');
       });
     });
   }
 
   /* ---------- init ---------- */
+  applySpeed();
   setSolution('agadia');
   buildFanout();
-  // layout can shift once the webfont lands
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildFanout);
   setTimeout(buildFanout, 350);
 
