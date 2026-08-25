@@ -83,7 +83,7 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 .line-legend .li{display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--slate-600); font-weight:600;}
 .line-legend .sw{width:26px; height:3px; border-radius:2px; flex:0 0 auto;}
 .line-legend .sw.req{background:var(--slate-900);}
-.line-legend .sw.ok{background:repeating-linear-gradient(to right, var(--emerald) 0 5px, transparent 5px 9px);}
+.line-legend .sw.ok{background:repeating-linear-gradient(to right, var(--emerald) 0 5px, transparent 5px 10px);}
 .line-legend .sw.async{background:var(--violet-border);}
 .line-legend .sw.err{background:var(--red);}
 .line-legend .sw.base{background:repeating-linear-gradient(to right, var(--card-border) 0 6px, transparent 6px 11px);}
@@ -183,7 +183,7 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 .job-list li.err::before{background:var(--red); transform:scale(1.9); box-shadow:0 0 0 4px rgba(220,38,38,.16);}
 
 /* ---------- straight connectors: one numbered line per transaction ---------- */
-.conn{position:relative; height:150px; align-self:center; z-index:1;}
+.conn{position:relative; height:186px; align-self:center; z-index:1;}
 .conn.c_a1app{grid-column:4; grid-row:1;}
 .conn.c_appa2{grid-column:6; grid-row:1;}
 .conn.c_appa3{grid-column:4; grid-row:2;}
@@ -205,7 +205,7 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 .tx-line.req,.tx-dot.req{color:var(--slate-900);}
 .tx-line.ok,.tx-dot.ok{color:var(--emerald);}
 /* the immediate 200 reads as a dotted line — it is a response, not a new request */
-.tx-line.ok{background:repeating-linear-gradient(to right, currentColor 0 5px, transparent 5px 9px);}
+.tx-line.ok{background:repeating-linear-gradient(to right, currentColor 0 5px, transparent 5px 10px);}
 .tx-line.err,.tx-dot.err{color:var(--red);}
 .tx-line.async,.tx-dot.async{color:var(--violet-border);}
 .tx-line.ack,.tx-dot.ack{color:var(--emerald);}
@@ -236,6 +236,8 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 .fan-path.dim{opacity:.4;}
 .fan-path.bad{stroke:var(--red); stroke-width:2; stroke-dasharray:3 4;}
 .fan-line{fill:none; stroke-width:2.5; stroke-linecap:round;}
+/* the immediate 200 is dotted from the first frame, same rhythm as the straight hops */
+.fan-line.ok{stroke-dasharray:5 5;}
 .fan-line.req{stroke:var(--slate-900);}
 .fan-line.ok{stroke:var(--emerald);}
 .fan-line.err{stroke:var(--red);}
@@ -581,7 +583,7 @@ footer strong{color:var(--slate-600);}
   SOL_ORDER.forEach(function(k){ solCards[k] = el('sc_'+k); solSt[k] = el('sst_'+k); });
 
   var curCust = 'c1', curSol = 'agadia', running = false;
-  var LANE = 15, FLANE = 7;
+  var LANE = 17, FLANE = 9;
 
   /* ---------- speed ---------- */
   var BASE = { hop:300, hold:100, proc:320, fan:640, review:800, adjud:1100, gap:400, ack:380 };
@@ -812,6 +814,7 @@ footer strong{color:var(--slate-600);}
   var DOTC = { req:'#0F172A', ok:'#059669', err:'#DC2626', async:'#7C3AED', ack:'#059669' };
 
   var AHEAD = { req:'ahReq', ok:'ahOk', err:'ahErr', async:'ahAsync', ack:'ahAck' };
+  var clipSeq = 0;
 
   function hopFan(side, which, type, num, dur, rev){
     var svgLines = (side === 'L') ? U.flLines : U.frLines;
@@ -850,12 +853,23 @@ footer strong{color:var(--slate-600);}
     svgLines.appendChild(p);
 
     var len = p.getTotalLength();
-    p.style.transition='none';
-    p.style.strokeDasharray = String(len);
-    p.style.strokeDashoffset = String(len);
-    void p.getBoundingClientRect();
-    p.style.transition = 'stroke-dashoffset '+dur+'ms linear';
-    requestAnimationFrame(function(){ p.style.strokeDashoffset='0'; });
+    // the dash pattern is now purely cosmetic (see .fan-line.ok), so the reveal is
+    // done with a clip rect that grows along the direction of travel
+    var pStart = p.getPointAtLength(0), pEnd = p.getPointAtLength(len);
+    var ltr = pStart.x < pEnd.x;
+    var bb = p.getBBox();
+    var xLo = bb.x - 6, xHi = bb.x + bb.width + 6;
+    var cid = 'fanclip' + (++clipSeq);
+    var cp = document.createElementNS(NS,'clipPath');
+    cp.setAttribute('id', cid);
+    var cr = document.createElementNS(NS,'rect');
+    cr.setAttribute('y', bb.y - 40);
+    cr.setAttribute('height', bb.height + 80);
+    cr.setAttribute('x', ltr ? xLo : xHi);
+    cr.setAttribute('width', 0);
+    cp.appendChild(cr);
+    svgLines.appendChild(cp);
+    p.setAttribute('clip-path', 'url(#' + cid + ')');
 
     // number badge, staggered along the curve so bundled lanes do not stack
     var frac = (total > 1) ? (0.30 + 0.42 * (laneIdx / (total - 1))) : 0.5;
@@ -877,16 +891,14 @@ footer strong{color:var(--slate-600);}
         var t = Math.min(1, (ts-start)/dur);
         var pt = p.getPointAtLength(t*len);
         dotEl.setAttribute('cx', pt.x); dotEl.setAttribute('cy', pt.y);
+        if (ltr){ cr.setAttribute('x', xLo); cr.setAttribute('width', Math.max(0, pt.x - xLo)); }
+        else    { cr.setAttribute('x', pt.x); cr.setAttribute('width', Math.max(0, xHi - pt.x)); }
         if (t < 1) requestAnimationFrame(frame);
         else {
+          cr.setAttribute('x', xLo); cr.setAttribute('width', xHi - xLo);
           dotEl.style.opacity = '0';
           bg.style.opacity = '1'; tx.style.opacity = '1';
           p.setAttribute('marker-end', 'url(#' + (AHEAD[type] || 'ahReq') + ')');
-          if (type === 'ok'){          // settle the 200 into a dotted line
-            p.style.transition = 'none';
-            p.style.strokeDasharray = '5 4';
-            p.style.strokeDashoffset = '0';
-          }
           resolve();
         }
       }
