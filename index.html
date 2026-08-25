@@ -66,6 +66,14 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 }
 .btn-reset:hover:not(:disabled){border-color:var(--slate-400);}
 .btn-reset:disabled{opacity:.5; cursor:not-allowed;}
+.btn-pause{
+  background:#fff; color:var(--slate-600); border:1.5px solid var(--card-border);
+  font-size:14px; font-weight:700; padding:12px 18px; border-radius:10px; cursor:pointer;
+  min-width:106px; transition:background .2s, border-color .2s, color .2s;
+}
+.btn-pause:hover:not(:disabled){border-color:var(--amber-border);}
+.btn-pause:disabled{opacity:.45; cursor:not-allowed;}
+.btn-pause.paused{background:var(--amber-fill); border-color:var(--amber-border); color:#7C2D12;}
 @media (max-width:1040px){
   .field.cust,.field.grow,.field.speed{min-width:100%;}
   .demo-actions{margin-left:0; width:100%;}
@@ -78,6 +86,8 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
   background:var(--indigo-fill); padding:7px 14px; border-radius:999px; margin-bottom:16px;
 }
 .demo-phase .dot{width:7px; height:7px; border-radius:50%; background:var(--indigo); flex:0 0 auto;}
+.demo-phase.paused{background:var(--amber-fill); color:#7C2D12;}
+.demo-phase.paused .dot{background:var(--amber-border);}
 
 .line-legend{display:flex; flex-wrap:wrap; gap:18px; margin:0 0 18px; align-items:center;}
 .line-legend .li{display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--slate-600); font-weight:600;}
@@ -154,6 +164,19 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 .rule-box.litc .rv{color:var(--teal-border);}
 .rule-box.bad{border-color:var(--red); border-style:solid; background:#FEF2F2;}
 .rule-box.bad .rv{color:var(--red);}
+
+.job-group{margin-bottom:9px;}
+.job-group-tag{
+  font-size:8.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase;
+  color:var(--slate-400); margin-bottom:5px;
+}
+.job-group .job-list{margin-bottom:0;}
+.db-badge{
+  display:flex; align-items:flex-start; gap:7px; margin:2px 0 0;
+  border:1px solid rgba(67,56,202,.45); border-radius:9px; background:var(--indigo-fill);
+  padding:7px 9px; font-size:9.5px; font-weight:800; color:var(--indigo); line-height:1.35;
+}
+.db-badge svg{width:14px; height:14px; flex:0 0 auto; margin-top:1px;}
 
 /* a conditional block: only runs on one path, so it reads as inactive until it does */
 .cond-block{
@@ -330,6 +353,7 @@ main{max-width:1560px; margin:0 auto; padding:32px 32px 48px;}
 .demo-log .entry.async .dot{background:var(--violet-border);}
 .demo-log .entry.route .dot{background:var(--amber-border);}
 .demo-log .entry.corr .dot{background:var(--teal-border);}
+.demo-log .entry.db .dot{background:var(--indigo);}
 .demo-log .entry.final .dot{background:var(--indigo);}
 .demo-log .entry .msg{color:var(--slate-900); line-height:1.5; padding-top:1px;}
 .demo-log .empty{color:var(--slate-400); font-size:13px; padding:18px 0; text-align:center;}
@@ -380,6 +404,7 @@ footer strong{color:var(--slate-600);}
     </div>
     <div class="demo-actions">
       <button class="btn-reset" id="demoReset" type="button">Reset</button>
+      <button class="btn-pause" id="demoPause" type="button" disabled>Pause</button>
       <button class="btn-run" id="demoRun" type="button">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <span id="demoRunLabel">Send Prior Authorization Request</span>
@@ -451,18 +476,31 @@ footer strong{color:var(--slate-600);}
       <div class="node app" id="nodeApp">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="13.5" x2="15" y2="13.5"/><line x1="9" y1="17" x2="12.5" y2="17"/></svg></div>
         <h4>AnvayaRx App</h4>
-        <div class="sub">Not an agent — audit and log</div>
-        <ul class="job-list" id="jobsApp">
-          <li>Write an immutable audit entry</li>
-          <li>Link it to this Case</li>
-          <li>Hand off to the routing agent</li>
-        </ul>
+        <div class="sub">Not an agent — the core application</div>
+
+        <div id="jobsApp">
+          <div class="job-group">
+            <div class="job-group-tag">Same program logic as the UI</div>
+            <ul class="job-list">
+              <li>Run program checks</li>
+              <li>Apply the same validation rules</li>
+              <li>Assign the Case ID</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="cond-block" id="condBlock">
           <div class="cond-tag">Async callbacks only</div>
           <ul class="job-list" id="jobsAppAsync">
             <li>Correlate the callback to its Case</li>
           </ul>
         </div>
+
+        <div class="db-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/><path d="M4 11.5v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+          <span>Every transaction written to the AnvayaRx DB — API and UI alike</span>
+        </div>
+
         <div class="status-line" id="statusApp"></div>
       </div>
 
@@ -579,6 +617,7 @@ footer strong{color:var(--slate-600);}
     rule2: el('ruleBox2'), rule2v: el('ruleVal2'),
     rule3: el('ruleBox3'), rule3v: el('ruleVal3'),
     condBlock: el('condBlock'), jobsAppAsync: el('jobsAppAsync'),
+    pause: el('demoPause'),
     flSvg: el('fanLeftSvg'), flBase: el('flBase'), flLines: el('flLines'), flDot: el('flDot'),
     frSvg: el('fanRightSvg'), frBase: el('frBase'), frLines: el('frLines'), frDot: el('frDot')
   };
@@ -615,19 +654,68 @@ footer strong{color:var(--slate-600);}
   }
   U.selSpeed.addEventListener('change', function(){ if (!running) applySpeed(); });
 
-  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
-  function setPhase(t){ U.phase.innerHTML = '<span class="dot"></span> ' + t; }
+  /* Every timed thing in the walkthrough reads this one virtual clock, which
+     simply stops advancing while paused. That way waits, the line draw-on and
+     the curve reveal all freeze together and resume in step. */
+  var paused = false, vt = 0, lastTs = null, tickers = [];
+  var runToken = 0;
+  var ABORT = { abort: true };
+
+  function frameLoop(ts){
+    if (lastTs === null) lastTs = ts;
+    var dt = Math.min(50, ts - lastTs);   // clamp so a backgrounded tab cannot jump
+    lastTs = ts;
+    if (!paused) vt += dt;
+    for (var i = tickers.length - 1; i >= 0; i--){
+      if (tickers[i](vt)) tickers.splice(i, 1);
+    }
+    requestAnimationFrame(frameLoop);
+  }
+  requestAnimationFrame(frameLoop);
+
+  function wait(ms){
+    var tok = runToken;
+    return new Promise(function(res, rej){
+      var end = vt + ms;
+      tickers.push(function(t){
+        if (tok !== runToken){ rej(ABORT); return true; }
+        if (t >= end){ res(); return true; }
+        return false;
+      });
+    });
+  }
+  // drives a 0..1 progress value off the virtual clock
+  function animate(dur, onFrame){
+    var tok = runToken;
+    return new Promise(function(res, rej){
+      var start = vt;
+      tickers.push(function(t){
+        if (tok !== runToken){ rej(ABORT); return true; }
+        var p = dur > 0 ? Math.min(1, (t - start) / dur) : 1;
+        onFrame(p);
+        if (p >= 1){ res(); return true; }
+        return false;
+      });
+    });
+  }
+
+  var curPhase = 'Ready';
+  function renderPhase(){
+    U.phase.innerHTML = '<span class="dot"></span> ' + (paused ? 'Paused — ' + curPhase : curPhase);
+    U.phase.classList.toggle('paused', paused);
+  }
+  function setPhase(t){ curPhase = t; renderPhase(); }
 
   /* ---------- job bullets ---------- */
   function jobItems(key){
     var l = NODE[key] && NODE[key].jobs;
-    return l ? Array.prototype.slice.call(l.children) : [];
+    return l ? Array.prototype.slice.call(l.querySelectorAll('li')) : [];
   }
   function clearJobs(){
     Object.keys(NODE).forEach(function(k){
       jobItems(k).forEach(function(li){ li.classList.remove('on','done','err'); });
     });
-    Array.prototype.slice.call(U.jobsAppAsync.children).forEach(function(li){
+    Array.prototype.slice.call(U.jobsAppAsync.querySelectorAll('li')).forEach(function(li){
       li.classList.remove('on','done','err');
     });
     U.condBlock.classList.remove('armed');
@@ -637,7 +725,7 @@ footer strong{color:var(--slate-600);}
     var items = jobItems(key);
     if (key === 'app' && type === 'async'){
       U.condBlock.classList.add('armed');
-      items = items.concat(Array.prototype.slice.call(U.jobsAppAsync.children));
+      items = items.concat(Array.prototype.slice.call(U.jobsAppAsync.querySelectorAll('li')));
     }
     if (!items.length) return Promise.resolve();
     if (reverse) items.reverse();
@@ -822,20 +910,13 @@ footer strong{color:var(--slate-600);}
 
     line.style.transition='none'; line.style.width='0%';
     dot.style.transition='none';
-    void line.offsetWidth;
-    line.style.transition = 'width '+dur+'ms linear';
-    dot.style.transition = 'left '+dur+'ms linear';
 
-    return new Promise(function(resolve){
-      requestAnimationFrame(function(){
-        line.style.width='100%';
-        dot.style.left = reverse ? '0%' : '100%';
-      });
-      setTimeout(function(){
-        if (dot.parentNode) dot.parentNode.removeChild(dot);
-        badge.style.opacity='1';
-        resolve();
-      }, dur + 30);
+    return animate(dur, function(p){
+      line.style.width = (p*100).toFixed(2) + '%';
+      dot.style.left = ((reverse ? 1-p : p)*100).toFixed(2) + '%';
+    }).then(function(){
+      if (dot.parentNode) dot.parentNode.removeChild(dot);
+      badge.style.opacity='1';
     });
   }
 
@@ -912,26 +993,17 @@ footer strong{color:var(--slate-600);}
     svgLines.appendChild(bg); svgLines.appendChild(tx);
 
     dotEl.setAttribute('fill', DOTC[type] || '#0F172A');
-    return new Promise(function(resolve){
-      var start = null;
-      dotEl.style.opacity = '1';
-      function frame(ts){
-        if (start === null) start = ts;
-        var t = Math.min(1, (ts-start)/dur);
-        var pt = p.getPointAtLength(t*len);
-        dotEl.setAttribute('cx', pt.x); dotEl.setAttribute('cy', pt.y);
-        if (ltr){ cr.setAttribute('x', xLo); cr.setAttribute('width', Math.max(0, pt.x - xLo)); }
-        else    { cr.setAttribute('x', pt.x); cr.setAttribute('width', Math.max(0, xHi - pt.x)); }
-        if (t < 1) requestAnimationFrame(frame);
-        else {
-          cr.setAttribute('x', xLo); cr.setAttribute('width', xHi - xLo);
-          dotEl.style.opacity = '0';
-          bg.style.opacity = '1'; tx.style.opacity = '1';
-          p.setAttribute('marker-end', 'url(#' + (AHEAD[type] || 'ahReq') + ')');
-          resolve();
-        }
-      }
-      requestAnimationFrame(frame);
+    dotEl.style.opacity = '1';
+    return animate(dur, function(t){
+      var pt = p.getPointAtLength(t*len);
+      dotEl.setAttribute('cx', pt.x); dotEl.setAttribute('cy', pt.y);
+      if (ltr){ cr.setAttribute('x', xLo); cr.setAttribute('width', Math.max(0, pt.x - xLo)); }
+      else    { cr.setAttribute('x', pt.x); cr.setAttribute('width', Math.max(0, xHi - pt.x)); }
+    }).then(function(){
+      cr.setAttribute('x', xLo); cr.setAttribute('width', xHi - xLo);
+      dotEl.style.opacity = '0';
+      bg.style.opacity = '1'; tx.style.opacity = '1';
+      p.setAttribute('marker-end', 'url(#' + (AHEAD[type] || 'ahReq') + ')');
     });
   }
 
@@ -994,9 +1066,13 @@ footer strong{color:var(--slate-600);}
   function caseId(){ return 'PA-' + Math.floor(10000 + Math.random()*89999); }
 
   function setButtons(d){
-    U.run.disabled=d; U.reset.disabled=d;
+    U.run.disabled = d;
+    U.reset.disabled = false;          // always live, so a demo can bail out mid-run
+    U.pause.disabled = !d;             // only meaningful while something is in flight
     U.selCust.disabled=d; U.selSol.disabled=d; U.selSpeed.disabled=d;
-    U.runLabel.textContent = d ? 'Running…' : 'Send Prior Authorization Request';
+    U.runLabel.textContent = d ? (paused ? 'Paused' : 'Running…') : 'Send Prior Authorization Request';
+    U.pause.textContent = paused ? 'Resume' : 'Pause';
+    U.pause.classList.toggle('paused', paused);
   }
 
   function applySelection(){
@@ -1029,12 +1105,30 @@ footer strong{color:var(--slate-600);}
 
   U.selCust.addEventListener('change', function(){ if (running) return; curCust = U.selCust.value; resetRun(); });
   U.selSol.addEventListener('change',  function(){ if (running) return; curSol  = U.selSol.value;  resetRun(); });
-  U.reset.addEventListener('click',    function(){ if (!running) resetRun(); });
+  U.reset.addEventListener('click', function(){
+    runToken++;                        // abandons anything still in flight
+    running = false; paused = false;
+    setButtons(false);
+    resetRun();
+  });
+
+  U.pause.addEventListener('click', function(){
+    if (!running) return;
+    paused = !paused;
+    renderPhase();
+    setButtons(true);
+  });
 
   U.run.addEventListener('click', function(){
     if (running) return;
-    running = true; applySpeed(); setButtons(true);
-    runScenario().then(function(){ running=false; setButtons(false); });
+    running = true; paused = false; applySpeed(); setButtons(true);
+    var tok = ++runToken;
+    runScenario().then(function(){
+      if (tok !== runToken) return;    // superseded by a reset
+      running = false; setButtons(false);
+    }, function(e){
+      if (e !== ABORT) throw e;
+    });
   });
 
   function runScenario(){
@@ -1048,7 +1142,7 @@ footer strong{color:var(--slate-600);}
 
     var fwdMsgs = {
       a1:  { text:'Validating and standardizing…' },
-      app: { text:'Logging exchange (Case #'+id+')…' },
+      app: { text:'Program checks · Case #'+id+' assigned…' },
       a2:  { text:'Matching routing rule…' }
     };
     var revMsgs = {
@@ -1066,7 +1160,10 @@ footer strong{color:var(--slate-600);}
       tx++;
       logEntry('info', c.name + ' submits a new request for Case <strong>#'+id+'</strong> — '+s.group, tx);
       var rq = tx;
-      return path([OUT_FWD[0], OUT_FWD[1], OUT_FWD[2]], 'req', rq, fwdMsgs, { a2:1 }).then(function(){
+      return path([OUT_FWD[0], OUT_FWD[1]], 'req', rq, fwdMsgs).then(function(){
+        logEntry('db','AnvayaRx App ran program checks, assigned <strong>Case #'+id+'</strong> and wrote the same tables the UI writes — logged to the AnvayaRx DB');
+        return leg(OUT_FWD[2], 'req', rq, fwdMsgs, { a2:1 });
+      }).then(function(){
         markJobErr('a2', 0);
         U.rule2.className = 'rule-box bad';
         solCards[curSol].classList.add('badroute');
@@ -1093,7 +1190,10 @@ footer strong{color:var(--slate-600);}
     logEntry('info', c.name + ' submits a new request for Case <strong>#'+id+'</strong> — '+s.group, tx);
     var t1 = tx;
 
-    return path([OUT_FWD[0], OUT_FWD[1], OUT_FWD[2]], 'req', t1, fwdMsgs).then(function(){
+    return path([OUT_FWD[0], OUT_FWD[1]], 'req', t1, fwdMsgs).then(function(){
+      logEntry('db','AnvayaRx App ran program checks, assigned <strong>Case #'+id+'</strong> and wrote the same tables the UI writes — logged to the AnvayaRx DB');
+      return leg(OUT_FWD[2], 'req', t1, fwdMsgs);
+    }).then(function(){
       U.rule2.className = 'rule-box lit';
       logEntry('route','Payor Routing Agent matched <strong>'+s.group+' → '+s.name+'</strong> — converting to '+s.fmt+', all other solutions skipped');
       setStatus('a2','Delivering to '+s.name+'…');
@@ -1104,7 +1204,7 @@ footer strong{color:var(--slate-600);}
       setStatus('a2','');
       solCards[curSol].classList.add('working');
       setSolStatus('Received');
-      logEntry('info', s.name + ' receives the request and begins eligibility review');
+      logEntry('info', s.name + ' receives the request and begins review');
       return wait(T.hold);
     }).then(function(){
       tx++; var t2 = tx;
